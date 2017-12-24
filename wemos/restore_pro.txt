@@ -1,0 +1,4 @@
+D3 to GND
+Reboot
+erase: esptool --chip esp8266 --port com3 erase_flash
+flash: esptool --chip esp8266 --port com3 write_flash -fm dio -fs 32m 0x0000 esp..vxxx.bin
