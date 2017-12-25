@@ -9,8 +9,8 @@ from umqtt.simple import MQTTClient
 # code in them to check the reset cause to perhaps do something different if the
 # device just woke from a deep-sleep.'''
 
-server = '192.168.1.106'
-id = 'office'
+server = '10.0.0.10'
+topic = 'home/groundfloot/office'
 
 if machine.reset_cause() == machine.DEEPSLEEP_RESET:
     time.sleep_ms(10000)
@@ -22,8 +22,9 @@ if machine.reset_cause() == machine.DEEPSLEEP_RESET:
     try:
         c = MQTTClient("umqtt_client", server)
         c.connect()
-        c.publish('/'.join(('home', 'groundfloor', id, 'temperature')), str(d.temperature()))
-        c.publish('/'.join(('home', 'groundfloor', id, 'humidity')), str(d.humidity()))
+        print("Connected to " + server)
+        c.publish(topic + '/temperature', str(d.temperature()))
+        c.publish(topic + '/humidity', str(d.humidity()))
         c.disconnect()
         time.sleep_ms(1000)
     except Exception as e:

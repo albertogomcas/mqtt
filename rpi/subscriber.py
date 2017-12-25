@@ -1,7 +1,10 @@
 import paho.mqtt.client as mqtt
 import time
 import sqlite3
+import database
+from datetime import datetime
 
+db = database.get_db()
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
@@ -16,6 +19,8 @@ def on_connect(client, userdata, flags, rc):
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
     print(msg.topic + " " + str(msg.payload))
+    db.execute('insert into notifications (date, topic, payload) values (?, ?, ?)',
+               (datetime.isoformat(datetime.now()), msg.topic, msg.payload.encode('latin-1')))
 
 
 client = mqtt.Client()
