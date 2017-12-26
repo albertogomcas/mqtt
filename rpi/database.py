@@ -8,6 +8,7 @@ def init_db():
     with open('schema.sql', mode='r') as f:
         db.cursor().executescript(f.read())
     db.commit()
+    db.close()
 
 
 def get_db():

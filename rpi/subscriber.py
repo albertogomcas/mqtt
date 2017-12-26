@@ -1,6 +1,5 @@
 import paho.mqtt.client as mqtt
 import time
-import sqlite3
 import database
 from datetime import datetime
 
@@ -19,15 +18,23 @@ def on_connect(client, userdata, flags, rc):
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
     print(msg.topic + " " + str(msg.payload))
-    db.execute('insert into notifications (date, topic, payload) values (?, ?, ?)',
-               (datetime.isoformat(datetime.now()), msg.topic, msg.payload.encode('latin-1')))
-
+    for retries in range(3):
+        try:
+            db.cursor().execute('insert into notifications (date, topic, payload) values (?, ?, ?)',
+                                (datetime.isoformat(datetime.now()), msg.topic, msg.payload.decode('latin-1')))
+            db.commit()
+            break
+        except Exception as e:
+            print(e)
+            time.sleep(1)
+    else:
+        raise Exception("Retries finished")
 
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
 
-client.connect("localhost", 1883, 60)
+client.connect("10.0.0.10", 1883, 60)
 
 # Blocking call that processes network traffic, dispatches callbacks and
 # handles reconnecting.
